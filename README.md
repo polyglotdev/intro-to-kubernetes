@@ -200,3 +200,163 @@ spec:
 2. DNS
    1. DNS records automatically created in cluster's DNS
    2. Containers automatically configured to query cluster DNS
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-tier
+  labels:
+    app: microservices
+spec:
+  ports:
+  - port: 8080
+  selector:
+    tier: app
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app-tier
+  labels:
+    app: microservices
+    tier: app
+spec:
+  containers:
+    - name: server
+      image: lrakai/microservices:server-v1
+      ports:
+        - containerPort: 8080
+      env:
+        - name: REDIS_URL
+          # Environment variable service discovery
+          # Naming pattern:
+          #   IP address: <all_caps_service_name>_SERVICE_HOST
+          #   Port: <all_caps_service_name>_SERVICE_PORT
+          #   Named Port: <all_caps_service_name>_SERVICE_PORT_<all_caps_port_name>
+          value: redis://$(DATA_TIER_SERVICE_HOST):$(DATA_TIER_SERVICE_PORT_REDIS)
+          # In multi-container example value was
+          # value: redis://localhost:6379
+```
+
+Kubernetes Service discovery is a mechanism that allows applications running within a Kubernetes cluster to find and communicate with each other. This is essential for microservices architectures where services need to dynamically discover each other due to their ephemeral nature.
+
+### Key Concepts of Kubernetes Service Discovery
+
+1. **Services**:
+   1. A Kubernetes Service is an abstraction that defines a logical set of Pods and a policy by which to access them. Services enable loose coupling between dependent Pods.
+
+2. **Labels and Selectors**:
+   1. Pods are assigned key-value pairs called labels. A Service uses selectors to identify the Pods it should route traffic to based on their labels.
+
+3. **Service Types**:
+   - **ClusterIP**: Exposes the Service on an internal IP in the cluster. This is the default ServiceType. The Service is only reachable from within the cluster.
+   - **NodePort**: Exposes the Service on the same port of each selected Node in the cluster. This makes the Service accessible from outside the cluster using `<NodeIP>:<NodePort>`.
+   - **LoadBalancer**: Exposes the Service externally using a cloud provider's load balancer.
+   - **ExternalName**: Maps the Service to the contents of the `externalName` field (e.g., `foo.bar.example.com`), returning a CNAME record with its value.
+
+4. **Endpoints**:
+   1. Each Service has a list of Endpoints, which are the IP addresses of the Pods that match the Service's selector. The Endpoints resource keeps this list updated as Pods are added or removed.
+
+5. **DNS-based Service Discovery**:
+   1. Kubernetes clusters typically have a DNS server (like CoreDNS) that automatically creates DNS records for Kubernetes Services. This allows services to discover each other by name. For example, if a Service named `my-service` exists in the `default` namespace, it can be accessed within the same namespace by simply using the DNS name `my-service`.
+
+6. **Headless Services**:
+   1. A Headless Service is a Service without a ClusterIP. Instead of load-balancing, the DNS server returns the A records (IP addresses) of the Pods backing the Service. This is useful for stateful applications like databases.
+
+### Service Discovery Workflow:
+
+1. **Create a Service**:
+   1. Define a Service manifest that specifies the selector labels, ports, and type. Example:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  selector:
+    app: MyApp
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 9376
+```
+
+1. **Expose the Service**:
+   - When the Service is created, Kubernetes allocates a ClusterIP and sets up the necessary rules to route traffic to the Pods that match the selector.
+
+2. **Access the Service**:
+   - Within the cluster, you can access the Service using the DNS name `my-service.default.svc.cluster.local` or just `my-service` if within the same namespace.
+   - If the Service type is `NodePort` or `LoadBalancer`, it can be accessed from outside the cluster using the appropriate external endpoint.
+
+### Example Use Case:
+
+Consider a web application consisting of a frontend and backend. The backend is exposed as a Service so the frontend can discover and communicate with it.
+
+1. **Backend Deployment**:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: backend-image
+          ports:
+            - containerPort: 8080
+```
+
+2. **Backend Service**:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+spec:
+  selector:
+    app: backend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+```
+
+3. **Frontend Deployment**:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: frontend-image
+          ports:
+            - containerPort: 80
+          env:
+            - name: BACKEND_URL
+              value: "http://backend:80"
+```
