@@ -360,3 +360,94 @@ spec:
             - name: BACKEND_URL
               value: "http://backend:80"
 ```
+
+### Kubernetes Networking
+
+Kubernetes networking is a complex but fundamental aspect of Kubernetes architecture. It deals with how Pods communicate within the cluster, how traffic is routed to Pods from outside the cluster, and how network policies are applied to ensure secure communication. Here’s an in-depth look at the key components and concepts:
+
+#### Key Components and Concepts:
+
+1. **Pod Networking**:
+   1. Each Pod in Kubernetes gets its own IP address. Pods can communicate with each other directly using these IP addresses, which ensures isolation and scalability. Kubernetes uses a flat network structure, meaning all Pods can communicate with each other without NAT (Network Address Translation).
+
+2. **Service Networking**:
+   1. Services in Kubernetes provide stable IP addresses and DNS names for Pods. They abstract away the individual Pod IP addresses, allowing for load balancing and service discovery.
+
+3. **Network Policies**:
+   1. Network Policies are used to control the traffic flow between Pods. They define rules about what traffic is allowed to enter and leave specific Pods, ensuring a secure networking environment within the cluster.
+
+4. **Cluster Networking**:
+   1. Kubernetes requires a network plugin (CNI - Container Network Interface) to manage networking within the cluster. Some popular CNI plugins are Calico, Flannel, Weave, and Cilium.
+
+#### Detailed Breakdown:
+
+1. **Pod-to-Pod Communication**:
+   1. **Flat Network Model**: Kubernetes assumes that Pods can communicate with each other directly without NAT. This is achieved using an overlay network managed by a CNI plugin.
+   2. **CNI Plugins**: These plugins set up the network interfaces for Pods, assign IP addresses, and route traffic. Examples include:
+     - **Calico**: Uses BGP for routing and provides network policies.
+     - **Flannel**: Uses VXLAN for creating an overlay network.
+     - **Weave**: Uses a mesh network for Pod communication.
+     - **Cilium**: Uses eBPF for high-performance networking and security policies.
+
+2. **Service-to-Pod Communication**:
+   1. **ClusterIP**: Each Service gets a stable ClusterIP address that load balances traffic to the Pods matching the Service's selector.
+   2. **Service Endpoints**: The Endpoints object maintains a list of Pod IPs that match the Service’s selector. The kube-proxy component uses this information to route traffic.
+
+3. **External-to-Internal Communication**:
+   1. **NodePort**: Exposes the Service on each Node’s IP at a static port. This allows external traffic to reach the Service by addressing any Node.
+   2. **LoadBalancer**: Integrates with cloud provider load balancers to expose the Service externally.
+   3. **Ingress**: Provides HTTP and HTTPS routing to Services within the cluster. It is a more flexible and powerful way to expose multiple Services under a single IP address. An Ingress Controller manages the routing rules defined in Ingress resources.
+
+4. **Network Policies**:
+   1. **Isolation**: By default, Kubernetes allows all traffic between all Pods. Network Policies can be used to enforce restrictions.
+   2. **Policy Definition**: A NetworkPolicy resource specifies how groups of Pods are allowed to communicate with each other and other network endpoints.
+   3. **Example**:
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-frontend
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      role: frontend
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          role: backend
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          role: database
+```
+
+5. **DNS and Service Discovery**:
+   1. **CoreDNS**: A DNS server that provides DNS-based service discovery within the cluster. It automatically resolves Service names to ClusterIP addresses.
+   2. **Service Naming**: Services are accessible via DNS names following the pattern `service-name.namespace.svc.cluster.local`.
+
+### Example Use Case: Setting Up a Kubernetes Network with Calico
+
+1. **Deploy a Kubernetes Cluster**:
+   1. Use a tool like `kubeadm`, `kind`, or `minikube` to set up a cluster.
+2. **Install Calico**:
+   1. Follow the Calico installation guide to set up Calico as the CNI plugin.
+
+```sh
+kubectl apply -f https://docs.projectcalico.org/v3.20/manifests/calico.yaml
+```
+
+1. **Deploy Sample Applications**:
+   1. Create Deployments and Services for a frontend and backend application.
+
+2. **Apply Network Policies**:
+   1. Define Network Policies to control traffic between frontend and backend Pods.
+
+3. **Expose Services**:
+   1. Use NodePort or Ingress to expose the frontend Service to external traffic.
