@@ -182,3 +182,21 @@ spec:
 - By default, all resources are created in the default namespace
 - You can create additional namespaces to organize resources
 - Also can use role-base access control to restrict access to resources
+
+## Service Discovery
+
+### Why Services?
+
+- Supports multi-pod design
+- Provides static endpoints for each tier
+- Handles Pod IP changes
+- Load balances traffic across pods
+
+### Service Discovery Mechanisms
+
+1. Environment variables
+   1. Services address automatically injected
+   2. Environment variables are updated when service changes
+2. DNS
+   1. DNS records automatically created in cluster's DNS
+   2. Containers automatically configured to query cluster DNS
