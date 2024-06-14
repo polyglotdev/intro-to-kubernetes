@@ -1,0 +1,4 @@
+redis:latest
+lrakai/microservices:server-v1
+lrakai/microservices:counter-v1
+lrakai/microservices:poller-v1
