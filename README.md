@@ -250,10 +250,10 @@ Kubernetes Service discovery is a mechanism that allows applications running wit
    1. Pods are assigned key-value pairs called labels. A Service uses selectors to identify the Pods it should route traffic to based on their labels.
 
 3. **Service Types**:
-   - **ClusterIP**: Exposes the Service on an internal IP in the cluster. This is the default ServiceType. The Service is only reachable from within the cluster.
-   - **NodePort**: Exposes the Service on the same port of each selected Node in the cluster. This makes the Service accessible from outside the cluster using `<NodeIP>:<NodePort>`.
-   - **LoadBalancer**: Exposes the Service externally using a cloud provider's load balancer.
-   - **ExternalName**: Maps the Service to the contents of the `externalName` field (e.g., `foo.bar.example.com`), returning a CNAME record with its value.
+   1. **ClusterIP**: Exposes the Service on an internal IP in the cluster. This is the default ServiceType. The Service is only reachable from within the cluster.
+   2. **NodePort**: Exposes the Service on the same port of each selected Node in the cluster. This makes the Service accessible from outside the cluster using `<NodeIP>:<NodePort>`.
+   3. **LoadBalancer**: Exposes the Service externally using a cloud provider's load balancer.
+   4. **ExternalName**: Maps the Service to the contents of the `externalName` field (e.g., `foo.bar.example.com`), returning a CNAME record with its value.
 
 4. **Endpoints**:
    1. Each Service has a list of Endpoints, which are the IP addresses of the Pods that match the Service's selector. The Endpoints resource keeps this list updated as Pods are added or removed.
@@ -261,7 +261,7 @@ Kubernetes Service discovery is a mechanism that allows applications running wit
 5. **DNS-based Service Discovery**:
    1. Kubernetes clusters typically have a DNS server (like CoreDNS) that automatically creates DNS records for Kubernetes Services. This allows services to discover each other by name. For example, if a Service named `my-service` exists in the `default` namespace, it can be accessed within the same namespace by simply using the DNS name `my-service`.
 
-6. **Headless Services**:
+6.  **Headless Services**:
    1. A Headless Service is a Service without a ClusterIP. Instead of load-balancing, the DNS server returns the A records (IP addresses) of the Pods backing the Service. This is useful for stateful applications like databases.
 
 ### Service Discovery Workflow:
@@ -285,7 +285,6 @@ spec:
 
 1. **Expose the Service**:
    - When the Service is created, Kubernetes allocates a ClusterIP and sets up the necessary rules to route traffic to the Pods that match the selector.
-
 2. **Access the Service**:
    - Within the cluster, you can access the Service using the DNS name `my-service.default.svc.cluster.local` or just `my-service` if within the same namespace.
    - If the Service type is `NodePort` or `LoadBalancer`, it can be accessed from outside the cluster using the appropriate external endpoint.
@@ -369,13 +368,10 @@ Kubernetes networking is a complex but fundamental aspect of Kubernetes architec
 
 1. **Pod Networking**:
    1. Each Pod in Kubernetes gets its own IP address. Pods can communicate with each other directly using these IP addresses, which ensures isolation and scalability. Kubernetes uses a flat network structure, meaning all Pods can communicate with each other without NAT (Network Address Translation).
-
 2. **Service Networking**:
    1. Services in Kubernetes provide stable IP addresses and DNS names for Pods. They abstract away the individual Pod IP addresses, allowing for load balancing and service discovery.
-
 3. **Network Policies**:
    1. Network Policies are used to control the traffic flow between Pods. They define rules about what traffic is allowed to enter and leave specific Pods, ensuring a secure networking environment within the cluster.
-
 4. **Cluster Networking**:
    1. Kubernetes requires a network plugin (CNI - Container Network Interface) to manage networking within the cluster. Some popular CNI plugins are Calico, Flannel, Weave, and Cilium.
 
@@ -384,10 +380,10 @@ Kubernetes networking is a complex but fundamental aspect of Kubernetes architec
 1. **Pod-to-Pod Communication**:
    1. **Flat Network Model**: Kubernetes assumes that Pods can communicate with each other directly without NAT. This is achieved using an overlay network managed by a CNI plugin.
    2. **CNI Plugins**: These plugins set up the network interfaces for Pods, assign IP addresses, and route traffic. Examples include:
-     - **Calico**: Uses BGP for routing and provides network policies.
-     - **Flannel**: Uses VXLAN for creating an overlay network.
-     - **Weave**: Uses a mesh network for Pod communication.
-     - **Cilium**: Uses eBPF for high-performance networking and security policies.
+        - **Calico**: Uses BGP for routing and provides network policies.
+        - **Flannel**: Uses VXLAN for creating an overlay network.
+        - **Weave**: Uses a mesh network for Pod communication.
+        - **Cilium**: Uses eBPF for high-performance networking and security policies.
 
 2. **Service-to-Pod Communication**:
    1. **ClusterIP**: Each Service gets a stable ClusterIP address that load balances traffic to the Pods matching the Service's selector.
@@ -445,9 +441,7 @@ kubectl apply -f https://docs.projectcalico.org/v3.20/manifests/calico.yaml
 
 1. **Deploy Sample Applications**:
    1. Create Deployments and Services for a frontend and backend application.
-
 2. **Apply Network Policies**:
    1. Define Network Policies to control traffic between frontend and backend Pods.
-
 3. **Expose Services**:
    1. Use NodePort or Ingress to expose the frontend Service to external traffic.
