@@ -135,3 +135,37 @@ One of the ways you can interact with Kubernetes is through the command line too
 5. The Kubelet reports the status of the pod back to the API server
 6. The API server updates the status of the pod in etcd
 
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mypod
+spec:
+  containers:
+  - name: dom-nginx
+    image: nginx:latest
+    resources:
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+      requests:
+        memory: "256Mi"
+        cpu: "250m"
+```
+
+- `apiVersion`: String that identifies the version of the schema the object should have
+- `kind`: The kind of object being created
+- `metadata`: Data that helps uniquely identify the object
+- `spec`: The desired state of the object
+- `containers`: List of containers that should be run in the pod
+- `name`: Name of the container
+- `image`: The container image to run
+- `resources`: Resource limits and requests for the container
+- `limits`: The maximum amount of resources the container can use
+- `requests`: The amount of resources the container needs to start
+- `memory`: The amount of memory the container can use
+- `cpu`: The amount of CPU the container can use
+- `volumeMounts`: List of volumes that should be mounted in the container
+- `volumes`: List of volumes that should be available to the pod
+- `labels`: Key-value pairs that can be used to select objects
+- `annotations`: Key-value pairs that can be used to store arbitrary data
