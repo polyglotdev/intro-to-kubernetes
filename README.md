@@ -66,3 +66,15 @@ Born out of Google's experience running in production workloads at scale
   - Define network rules to access the pods
 - Deployments
   - Define how to create and update instances of the application
+
+## Interacting with Kubernetes
+
+One of the ways you can interact with Kubernetes is through the command line tool `kubectl`. You can also use the K8's API directly. We can also use client libraries.
+
+- Rest API
+  - It is possible but not common to work directly with the API server
+- Client Libraries
+  - Official libraries are available in Go, Python, Java, and others
+- kubectl
+  - Command-line tool for interacting with the cluster
+  - Can be used to deploy applications, inspect and manage cluster resources, and view logs
