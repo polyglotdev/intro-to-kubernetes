@@ -445,3 +445,10 @@ kubectl apply -f https://docs.projectcalico.org/v3.20/manifests/calico.yaml
    1. Define Network Policies to control traffic between frontend and backend Pods.
 3. **Expose Services**:
    1. Use NodePort or Ingress to expose the frontend Service to external traffic.
+
+## Deployments
+
+- A Deployment is a higher-level concept that manages ReplicaSets and Pods
+- Deployments are used to define the desired state of the application
+- Deployments can scale, update, and rollback application versions
+- Deployments are declarative and can be defined in YAML files
