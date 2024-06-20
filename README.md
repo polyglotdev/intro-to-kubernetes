@@ -453,3 +453,19 @@ kubectl apply -f https://docs.projectcalico.org/v3.20/manifests/calico.yaml
 - Deployments can scale, update, and rollback application versions
 - Deployments are declarative and can be defined in YAML files
 - Templates are used to create replicas and replica is a copy of a pod
+- K8's ensures actual state matches desired state
+- `kubectl scale` to scale number of replicas
+- Services seamlessly support scaling
+- Scaling is best with stateless pods
+
+## Autoscaling
+
+- Scale automatically based on CPU utilization(or other metrics)
+- Horizontal Pod Autoscaler (HPA) is a K8's resource
+- Set target CPU along with min and max replicas
+- Target CPU is expressed as a percentage of the pods requested CPU
+
+## Metrics
+
+- Autoscaling depends on metrics being collected
+- Metrics Server is one solution for collecting metrics
