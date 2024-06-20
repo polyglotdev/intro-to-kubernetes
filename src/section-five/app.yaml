@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-tier
+  labels:
+    app: microservices
+spec:
+  ports:
+  - port: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: microservices
+    tier: app
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-tier
+  labels:
+    app: microservices
+    tier: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: microservices
+      tier: app
+  template:
+    metadata:
+      labels:
+        app: microservices
+        tier: app
+    spec:
+      containers:
+      - name: server
+        image: lrakai/microservices:server-v1
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 8080
+        env:
+          - name: REDIS_URL
+            value: redis://$(DATA_TIER_SERVICE_HOST):$(DATA_TIER_SERVICE_PORT_REDIS)
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+          requests:
+            cpu: "250m"
+            memory: "256Mi"

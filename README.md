@@ -452,3 +452,4 @@ kubectl apply -f https://docs.projectcalico.org/v3.20/manifests/calico.yaml
 - Deployments are used to define the desired state of the application
 - Deployments can scale, update, and rollback application versions
 - Deployments are declarative and can be defined in YAML files
+- Templates are used to create replicas and replica is a copy of a pod
