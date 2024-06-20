@@ -1,0 +1,25 @@
+# app-tier Pod
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app-tier
+  namespace: service-discovery
+  labels:
+    app: microservices
+    tier: app
+spec:
+  containers:
+    - name: server
+      image: lrakai/microservices:server-v1
+      ports:
+        - containerPort: 8080
+      env:
+        - name: REDIS_URL
+          value: redis://$(DATA_TIER_SERVICE_HOST):$(DATA_TIER_SERVICE_PORT_REDIS)
+      resources:
+        requests:
+          memory: "64Mi"
+          cpu: "250m"
+        limits:
+          memory: "128Mi"
+          cpu: "500m"

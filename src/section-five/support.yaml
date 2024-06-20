@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: support-tier
+  labels:
+    app: microservices
+    tier: support
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: microservices
+      tier: support
+  template:
+    metadata:
+      labels:
+        app: microservices
+        tier: support
+    spec:
+      containers:
+      - name: counter
+        image: lrakai/microservices:counter-v1
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: API_URL
+            value: http://app-tier.deployments:8080
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+
+      - name: poller
+        image: lrakai/microservices:poller-v1
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: API_URL
+            value: http://app-tier:8080
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
